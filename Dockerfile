@@ -2,8 +2,7 @@
 #
 # docker build -t sequenceiq/hadoop-ubuntu:2.6.0 .
 
-FROM sequenceiq/pam:ubuntu-14.04
-MAINTAINER SequenceIQ
+FROM ubuntu:14.04
 
 USER root
 
@@ -62,14 +61,6 @@ ADD ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
 RUN chown root:root /root/.ssh/config
 
-# # installing supervisord
-# RUN yum install -y python-setuptools
-# RUN easy_install pip
-# RUN curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -o - | python
-# RUN pip install supervisor
-#
-# ADD supervisord.conf /etc/supervisord.conf
-
 ADD bootstrap.sh /etc/bootstrap.sh
 RUN chown root:root /etc/bootstrap.sh
 RUN chmod 700 /etc/bootstrap.sh
@@ -94,24 +85,12 @@ CMD ["/etc/bootstrap.sh", "-d"]
 
 EXPOSE 50020 50090 50070 50010 50075 8031 8032 8033 8040 8042 49707 22 8088 8030
 
-# # get pip on ur machine
-# # RUN yum -y install epel-release; yum clean all
-# # RUN yum -y install python-pip; yum clean all
-#
-# # Install Python 2.7.
-# # RUN yum -y update
-# # RUN yum groupinstall -y 'development tools'
-# # RUN yum install -y zlib-devel bzip2-devel openssl-devel xz-libs wget
-# # RUN cd /tmp && wget http://www.python.org/ftp/python/2.7.8/Python-2.7.8.tar.xz
-# # RUN xz -d /tmp/Python-2.7.8.tar.xz
-# # RUN tar -xvf /tmp/Python-2.7.8.tar
-# # RUN cd Python-2.7.8 && ./configure --prefix=/usr/local --enable-shared LDFLAGS='-Wl,-rpath /usr/local/lib' && make && make altinstall
-# #
-# # # Install setuptools and pip.
-# # RUN cd /tmp && wget --no-check-certificate https://pypi.python.org/packages/source/s/setuptools/setuptools-1.4.2.tar.gz
-# # RUN tar -xvf /tmp/setuptools-1.4.2.tar.gz
-# # RUN cd setuptools-1.4.2 && python2.7 setup.py install
-# # RUN curl https://bootstrap.pypa.io/get-pip.py | python2.7 -
-# #
-# # # Install packages we need.
-# # RUN sudo yum install -y numpy scipy python-matplotlib ipython python-pandas sympy python-nose atlas-devel
+# get pip on ur machine
+RUN apt-get update
+RUN apt-get -y install python-pip
+
+#tensorflow reqs
+RUN echo "Y" > input.txt
+RUN apt-get install python-numpy python-scipy < input.txt
+
+RUN pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl
